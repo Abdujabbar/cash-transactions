@@ -1,0 +1,18 @@
+version: '2'
+services:
+  php:
+    image: yiisoftware/yii2-php:7.1-apache
+    volumes:
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      - ./:/app:delegated
+    ports:
+      - '8000:80'
+
+  mysql:
+      image: mysql:5.6
+      container_name: "cash_transactions"
+      ports:
+        - "3306:3306"
+      environment:
+        - "MYSQL_ROOT_PASSWORD=2211141"
+        - "MYSQL_DATABASE=cash_transactions"
