@@ -20,6 +20,13 @@ class m180622_092246_create_table_transactions extends Migration
             'created_at' => $this->timestamp(),
             'updated_at' => $this->timestamp(),
         ]);
+
+        $this->addForeignKey('from_user_fk', 'transactions',
+                            'from', 'users', 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey('to_user_fk', 'transactions',
+                            'to', 'users', 'id',
+                                    'CASCADE', 'CASCADE');
+
     }
 
     /**

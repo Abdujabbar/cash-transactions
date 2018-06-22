@@ -32,7 +32,7 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             [['username'], 'required'],
             [['balance'], 'safe'],
             [['created_at', 'updated_at'], 'safe'],
-            [['username'], 'string', 'max' => 255, 'min' => 6],
+            [['username'], 'string', 'max' => 255, 'min' => 4],
         ];
     }
 
