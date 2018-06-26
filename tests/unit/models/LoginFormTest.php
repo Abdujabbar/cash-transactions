@@ -16,11 +16,11 @@ class LoginFormTest extends \Codeception\Test\Unit
 
     public function testLoginCorrect()
     {
-//        $this->model = new LoginForm([
-//            'username' => 'muxrim',
-//        ]);
-//        expect_that($this->model->login());
-//        expect_not(\Yii::$app->user->isGuest);
+        $this->model = new LoginForm([
+            'username' => 'muxrim',
+        ]);
+        expect_that($this->model->login());
+        expect_not(\Yii::$app->user->isGuest);
     }
 
 }

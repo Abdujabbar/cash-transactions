@@ -16,6 +16,7 @@ use yii\web\IdentityInterface;
 class User extends \yii\db\ActiveRecord implements IdentityInterface
 {
     const MIN_BALANCE = -1000;
+    const SCENARIO_INSERT = 'insert';
     /**
      * {@inheritdoc}
      */
@@ -31,11 +32,18 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     {
         return [
             [['username'], 'required'],
+            [
+                ['username'],
+                'unique',
+                'targetClass' => 'app\models\User',
+                'message' => 'This username has already been taken.',
+                'on' => self::SCENARIO_INSERT],
             ['username', 'match', 'pattern' => '/^[a-zA-Z]*$/', 'message' => 'username can contain only characters'],
 
             [['balance'], 'safe'],
             [['created_at', 'updated_at'], 'safe'],
             [['username'], 'string', 'max' => 255, 'min' => 4],
+
         ];
     }
 

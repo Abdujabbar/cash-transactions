@@ -108,30 +108,32 @@ class Transfer extends \yii\db\ActiveRecord
     }
 
 
-    public function beforeSave($insert)
+    public function beforeValidate()
     {
-        if(!($this->authUser instanceof User)) {
-            $this->addError('username', 'Outcoming user must be instance of User');
-        }
-        if ($this->username === $this->authUser->username) {
-            $this->addError('username', 'You cannot transfer amount to yourself');
+        if(parent::beforeValidate()) {
+            if (!($this->authUser instanceof User)) {
+                $this->addError('username', 'Outcoming user must be instance of User');
+            }
+            if ($this->username === $this->authUser->username) {
+                $this->addError('username', 'You cannot transfer amount to yourself');
+            }
+
+            if (!($this->receiver = User::findByUsername($this->username))) {
+                $this->addError('username', 'Receiver found with username: ' . $this->username . ' not found');
+            }
+
+            if (!$this->canUserTransferAmount()) {
+                $this->addError('amount', 'Max value for transfer is:' . $this->authUser->availableTransferAmount());
+            }
+
+            if (count($this->errors) === 0) {
+                $this->from = $this->authUser->id;
+                $this->to = $this->receiver->id;
+                $this->amount = (float)number_format($this->amount, 2);
+            }
         }
 
-        if (!($this->receiver = User::findByUsername($this->username))) {
-            $this->addError('username', 'Receiver found with username: ' . $this->username . ' not found');
-        }
-
-        if (!$this->canUserTransferAmount()) {
-            $this->addError('amount', 'Max value for transfer is:' . $this->authUser->availableTransferAmount());
-        }
-
-        if (count($this->errors) === 0) {
-            $this->from = $this->authUser->id;
-            $this->to = $this->receiver->id;
-            $this->amount = (float)number_format($this->amount, 2);
-        }
-
-        return parent::beforeSave($insert);
+        return count($this->errors) === 0;
     }
 
 

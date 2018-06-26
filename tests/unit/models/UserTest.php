@@ -6,7 +6,7 @@ use app\models\User;
 
 class UserTest extends \Codeception\Test\Unit
 {
-    protected $username = 'admin1234';
+    protected $username = 'admincha';
     protected $notValidUsername = 'not-admin';
 
 
@@ -16,14 +16,22 @@ class UserTest extends \Codeception\Test\Unit
         $user->username = $this->username;
         $this->assertEquals($user->save(), true);
         $this->assertEquals(true, $user->id > 0);
-        expect_that(User::findByUsername($this->username));
+        $storedUser = User::findByUsername($this->username);
+        expect_that($storedUser);
+        $this->assertEquals($storedUser->balance, 0);
     }
 
-    public function testIsCreatedUserBalanceZero() {
+    public function testDuplicateForUsername()
+    {
         $user = new User();
         $user->username = $this->username;
-        $user->save();
-        $storedUser = User::findByUsername($this->username);
-        $this->assertEquals($storedUser->balance, $user->balance);
+        $this->assertEquals($user->save(), true);
+
+
+        $user1 = new User();
+        $user1->username = $this->username;
+        $user1->setScenario(User::SCENARIO_INSERT);
+
+        $this->assertEquals(false, $user1->validate());
     }
 }
