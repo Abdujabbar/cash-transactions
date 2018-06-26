@@ -98,14 +98,7 @@ class Transfer extends \yii\db\ActiveRecord
         return $this->hasOne(User::className(), ['id' => 'to']);
     }
 
-    /**
-     * {@inheritdoc}
-     * @return TransactionQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new TransactionQuery(get_called_class());
-    }
+
 
 
     public function beforeValidate()
