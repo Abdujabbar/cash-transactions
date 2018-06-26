@@ -15,7 +15,7 @@ class m180622_091026_create_table_users extends Migration
         $this->createTable('users', [
             'id' => $this->primaryKey(),
             'username' => $this->string()->notNull(),
-            'balance' => $this->integer()->notNull()->defaultValue(0),
+            'balance' => $this->float(2)->notNull()->defaultValue(0),
             'created_at' => $this->timestamp(),
             'updated_at' => $this->timestamp(),
         ]);

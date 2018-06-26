@@ -2,9 +2,8 @@
 
 namespace app\controllers;
 
+use app\models\Transfer;
 use Yii;
-use app\models\Transaction;
-use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -13,7 +12,7 @@ use yii\filters\VerbFilter;
 /**
  * TransactionsController implements the CRUD actions for Transaction model.
  */
-class TransactionsController extends Controller
+class TransfersController extends Controller
 {
 
     /**
@@ -47,14 +46,13 @@ class TransactionsController extends Controller
      * Lists all Transaction models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($type = Transfer::TYPE_INCOME)
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Transaction::find(),
-        ]);
-
+        $searchModel = new Transfer();
+        $searchModel->type = $type;
         return $this->render('index', [
-            'dataProvider' => $dataProvider,
+            'dataProvider' => $searchModel->search(Yii::$app->request->get()),
+            'searchModel' => $searchModel,
         ]);
     }
 
@@ -78,10 +76,10 @@ class TransactionsController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Transaction();
-
+        $model = new Transfer();
+        $model->setScenario(Transfer::SCENARIO_TRANSFER);
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'type' => Transfer::TYPE_OUTCOME]);
         }
 
         return $this->render('create', [

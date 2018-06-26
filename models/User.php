@@ -15,6 +15,7 @@ use yii\web\IdentityInterface;
  */
 class User extends \yii\db\ActiveRecord implements IdentityInterface
 {
+    const MIN_BALANCE = -1000;
     /**
      * {@inheritdoc}
      */
@@ -30,6 +31,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     {
         return [
             [['username'], 'required'],
+            ['username', 'match', 'pattern' => '/^[a-zA-Z]*$/', 'message' => 'username can contain only characters'],
+
             [['balance'], 'safe'],
             [['created_at', 'updated_at'], 'safe'],
             [['username'], 'string', 'max' => 255, 'min' => 4],
@@ -50,7 +53,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
         ];
     }
 
-    public static function findByUsername($username = '') {
+    public static function findByUsername($username = '')
+    {
         return self::find()->where(['username' => $username])->one();
     }
 
@@ -118,4 +122,22 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     {
         // TODO: Implement validateAuthKey() method.
     }
+
+
+    public function calculateBalance()
+    {
+        $outcoming = Transfer::find()->select('sum(amount)')->where(['from' => $this->getId()])->scalar();
+        $incoming = Transfer::find()->select('sum(amount)')->where(['to' => $this->getId()])->scalar();
+        $this->balance = (float)number_format(($incoming - $outcoming), 2);
+        $this->save();
+    }
+
+    public function availableTransferAmount()
+    {
+        if ($this->balance >= 0) {
+            return $this->balance + abs(self::MIN_BALANCE);
+        }
+        return abs(self::MIN_BALANCE) - abs($this->balance);
+    }
+
 }

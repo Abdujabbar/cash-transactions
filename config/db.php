@@ -2,9 +2,9 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=0.0.0.0;dbname=cash_transactions',
+    'dsn' => 'mysql:host=0.0.0.0;dbname=cash-transactions',
     'username' => 'root',
-    'password' => '2211141',
+    'password' => 'secret',
     'charset' => 'utf8',
 
     // Schema cache options (for production environment)
