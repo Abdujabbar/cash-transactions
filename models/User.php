@@ -134,9 +134,9 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
 
     public function calculateBalance()
     {
-        $outcoming = Transfer::find()->select('sum(amount)')->where(['from' => $this->getId()])->scalar();
-        $incoming = Transfer::find()->select('sum(amount)')->where(['to' => $this->getId()])->scalar();
-        $this->balance = (float)number_format(($incoming - $outcoming), 2);
+        $outcoming = Transfer::find()->select('sum(amount)')->where(['sender' => $this->getId()])->scalar();
+        $incoming = Transfer::find()->select('sum(amount)')->where(['receiver' => $this->getId()])->scalar();
+        $this->balance = (float)number_format(($incoming - $outcoming), 2, '.', '');
         $this->save();
     }
 

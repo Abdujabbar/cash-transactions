@@ -5,8 +5,8 @@ use yii\grid\GridView;
 use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-
-$this->title = 'Transfers ' . $searchModel->type;
+$type = Yii::$app->request->get('type');
+$this->title = 'Transfers ' . $type;
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="transaction-index">
@@ -15,14 +15,14 @@ $this->params['breadcrumbs'][] = $this->title;
     <hr />
     <p>
         <?=Html::a("Incoming",
-                    ['index', 'type' => \app\models\Transfer::TYPE_INCOME],
-                    ['class' => 'btn btn-'.($searchModel->type===\app\models\Transfer::TYPE_INCOME?'primary':'default')])?>
+                    ['index', 'type' => \app\controllers\TransfersController::TYPE_INCOME],
+                    ['class' => 'btn btn-'.($type===\app\controllers\TransfersController::TYPE_INCOME?'primary':'default')])?>
         <?=Html::a("Outcoming",
-                    ['index', 'type' => \app\models\Transfer::TYPE_OUTCOME],
-                    ['class' => 'btn btn-'.($searchModel->type===\app\models\Transfer::TYPE_OUTCOME?'primary':'default')])?>
+                    ['index', 'type' => \app\controllers\TransfersController::TYPE_OUTCOME],
+                    ['class' => 'btn btn-'.($type===\app\controllers\TransfersController::TYPE_OUTCOME?'primary':'default')])?>
     </p>
     <hr />
-    <?php if($searchModel->type === \app\models\Transfer::TYPE_OUTCOME):?>
+    <?php if($type === \app\controllers\TransfersController::TYPE_OUTCOME):?>
     <p>
         <?= Html::a('Create Transfer', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
@@ -38,14 +38,12 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'header' => 'username',
                 'value' => function($model) {
-                    return Yii::$app->request->get('type') === \app\models\Transfer::TYPE_INCOME ?
-                            $model->fromUser->username : $model->toUser->username;
+                    return Yii::$app->request->get('type') === \app\controllers\TransfersController::TYPE_INCOME ?
+                            $model->senderUser->username : $model->receiverUser->username;
                 }
             ],
             'amount',
             'created_at',
-            //'updated_at',
-
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>

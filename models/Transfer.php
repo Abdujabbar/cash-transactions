@@ -9,37 +9,22 @@ use yii\data\ActiveDataProvider;
  * This is the model class for table "transfers".
  *
  * @property int $id
- * @property int $from
- * @property int $to
+ * @property int $sender
+ * @property int $receiver
  * @property int $amount
  * @property string $created_at
  * @property string $updated_at
  *
- * @property User $fromUser
- * @property User $toUser
+ * @property User $senderUser
+ * @property User $receiverUser
  */
 class Transfer extends \yii\db\ActiveRecord
 {
     const SCENARIO_TRANSFER = 'transfer';
-    /**
-     * @var User
-     */
-    protected $authUser;
-    /**
-     * @var User
-     */
-    protected $receiver;
-    public $username;
-    public $type;
-    const TYPE_INCOME = 'income';
-    const TYPE_OUTCOME = 'outcome';
 
     public function __construct(array $config = [])
     {
         parent::__construct($config);
-        if (!Yii::$app->user->isGuest) {
-            $this->setAuthUser(User::findByUsername(Yii::$app->user->getIdentity()->username));
-        }
     }
 
 
@@ -57,13 +42,71 @@ class Transfer extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['username', 'amount'], 'required', 'on' => self::SCENARIO_TRANSFER],
-            [['from', 'to'], 'integer', 'min' => 1],
-            [['amount'], 'number', 'min' => 0.01, 'numberPattern' => '/^[\d]*+(.\d{1,2})?$/',
-                'message' => 'amount must be a number, and can contain only can 2 decimals after floating point'],
-            [['created_at', 'updated_at', 'from', 'to', 'amount', 'type'], 'safe'],
-            [['from'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['from' => 'id']],
-            [['to'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['to' => 'id']],
+            [
+                [
+                    'sender',
+                    'amount',
+                    'receiver'],
+                'required',
+                'on' => self::SCENARIO_TRANSFER],
+            [
+                'receiver',
+                'compare',
+                'compareAttribute' => 'sender',
+                'operator' => '!='
+            ],
+            [
+                'amount',
+                'canTransfer'
+            ],
+            [
+                [
+                    'sender',
+                    'receiver'
+                ],
+                'integer',
+                'min' => 1],
+            [
+                [
+                    'amount'
+                ],
+                'number',
+                'min' => 0.01,
+                'numberPattern' => '/^[\d]*+(\.\d{1,2})?$/',
+                'message' => 'amount must be a number, and can contain only can 2 decimals after floating point, float point character is "."'
+            ],
+            [
+                [
+                    'created_at',
+                    'updated_at',
+                    'sender',
+                    'receiver',
+                    'amount'
+                ],
+                'safe'
+            ],
+            [
+                [
+                    'sender'
+                ],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => User::className(),
+                'targetAttribute' => [
+                    'sender' => 'id'
+                ]
+            ],
+            [
+                [
+                    'receiver'
+                ],
+                'exist',
+                'skipOnError' => true,
+                'targetClass' => User::className(),
+                'targetAttribute' => [
+                    'receiver' => 'id'
+                ]
+            ],
         ];
     }
 
@@ -74,8 +117,8 @@ class Transfer extends \yii\db\ActiveRecord
     {
         return [
             'id' => Yii::t('app', 'ID'),
-            'from' => Yii::t('app', 'From'),
-            'to' => Yii::t('app', 'To'),
+            'Sender' => Yii::t('app', 'Sender'),
+            'Receiver' => Yii::t('app', 'Receiver'),
             'amount' => Yii::t('app', 'Amount'),
             'created_at' => Yii::t('app', 'Created At'),
             'updated_at' => Yii::t('app', 'Updated At'),
@@ -85,79 +128,62 @@ class Transfer extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getFromUser()
+    public function getSenderUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'from']);
+        return $this->hasOne(User::className(), ['id' => 'sender']);
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getToUser()
+    public function getReceiverUser()
     {
-        return $this->hasOne(User::className(), ['id' => 'to']);
+        return $this->hasOne(User::className(), ['id' => 'receiver']);
     }
-
-
 
 
     public function beforeValidate()
     {
-        if(parent::beforeValidate()) {
-            if (!($this->authUser instanceof User)) {
-                $this->addError('username', 'Outcoming user must be instance of User');
-            }
-            if ($this->username === $this->authUser->username) {
-                $this->addError('username', 'You cannot transfer amount to yourself');
-            }
-
-            if (!($this->receiver = User::findByUsername($this->username))) {
-                $this->addError('username', 'Receiver found with username: ' . $this->username . ' not found');
-            }
-
-            if (!$this->canUserTransferAmount()) {
-                $this->addError('amount', 'Max value for transfer is:' . $this->authUser->availableTransferAmount());
-            }
-
-            if (count($this->errors) === 0) {
-                $this->from = $this->authUser->id;
-                $this->to = $this->receiver->id;
-                $this->amount = (float)number_format($this->amount, 2);
-            }
-        }
-
-        return count($this->errors) === 0;
+//        $this->amount = (float)number_format((float)$this->amount, 2, '.', '');
+        return parent::beforeValidate();
     }
 
+    /**
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        return parent::beforeSave($insert); // TODO: Change the autogenerated stub
+    }
 
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
     public function afterSave($insert, $changedAttributes)
     {
-
-        $this->receiver->calculateBalance();
-        $this->authUser->calculateBalance();
-
+        $this->receiverUser->calculateBalance();
+        $this->senderUser->calculateBalance();
         parent::afterSave($insert, $changedAttributes); // TODO: Change the autogenerated stub
     }
 
-    public function setAuthUser(User $user)
-    {
-        $this->authUser = $user;
-    }
-
-
+    /**
+     * @param array $params
+     * @return ActiveDataProvider
+     */
     public function search($params = [])
     {
         $query = self::find();
 
         $this->load($params);
 
-        switch ($this->type) {
-            case self::TYPE_INCOME:
-                $query->where(['to' => $this->authUser->id]);
-                break;
-            case self::TYPE_OUTCOME:
-                $query->where(['from' => $this->authUser->id]);
-                break;
+        if ($this->receiver) {
+            $query->where(['receiver' => $this->receiver]);
+        }
+
+        if ($this->sender) {
+            $query->where(['sender' => $this->sender]);
         }
 
         return new ActiveDataProvider([
@@ -165,10 +191,21 @@ class Transfer extends \yii\db\ActiveRecord
         ]);
     }
 
-    public function canUserTransferAmount()
+    /**
+     * @param $attribute
+     * @param $params
+     * @param $validator
+     * @return bool
+     */
+    public function canTransfer($attribute, $params, $validator)
     {
-        return ($this->authUser->balance - $this->amount) >= User::MIN_BALANCE;
+        if ($this->senderUser) {
+            if (($this->senderUser->balance - $this->$attribute) >= User::MIN_BALANCE) {
+                return true;
+            }
+            $this->addError($attribute, "{$attribute} can't be greater than: " . $this->senderUser->availableTransferAmount());
+        }
+        return false;
     }
-
 
 }

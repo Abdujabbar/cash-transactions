@@ -32,10 +32,11 @@ class TransferTest extends \Codeception\Test\Unit
         $this->assertEquals(0, $user1->balance);
         $this->assertEquals(0, $user2->balance);
         $transfer = new Transfer();
-        $transfer->setAuthUser($user1);
+        $transfer->sender = $user1->getId();
         $transfer->amount = 0.01;
-        $transfer->username =  $user2->username;
+        $transfer->receiver = $user2->getId();
         $transfer->setScenario(Transfer::SCENARIO_TRANSFER);
+
         $this->assertEquals($transfer->save(), true);
         $storedUser1 = User::findByUsername($this->firstUser);
         $storedUser2 = User::findByUsername($this->secondUser);
@@ -53,10 +54,11 @@ class TransferTest extends \Codeception\Test\Unit
         $this->assertEquals(0, $user1->balance);
         $this->assertEquals(0, $user2->balance);
         $transfer = new Transfer();
-        $transfer->setAuthUser($user1);
-        $transfer->amount = 10000;
-        $transfer->username =  $user2->username;
+        $transfer->sender = $user1->getId();
+        $transfer->amount = 100000;
+        $transfer->receiver = $user2->getId();
         $transfer->setScenario(Transfer::SCENARIO_TRANSFER);
+        $transfer->validate();
         $this->assertEquals($transfer->validate(), false);
         $this->arrayHasKey('amount', $transfer->getErrors());
     }
@@ -67,12 +69,12 @@ class TransferTest extends \Codeception\Test\Unit
         $user = new User(['username' => $this->firstUser]);
         $this->assertEquals($user->save(), true);
         $transfer = new Transfer();
-        $transfer->setAuthUser($user);
+        $transfer->sender = $user->getId();
         $transfer->amount = 1000;
-        $transfer->username =  $user->username;
+        $transfer->receiver = $user->getId();
         $transfer->setScenario(Transfer::SCENARIO_TRANSFER);
         $this->assertEquals($transfer->validate(), false);
-        $this->arrayHasKey('username', $transfer->getErrors());
+        $this->arrayHasKey('sender', $transfer->getErrors());
     }
 
 }

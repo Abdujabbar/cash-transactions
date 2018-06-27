@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Transfer;
+use app\models\TransferForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -14,7 +15,8 @@ use yii\filters\VerbFilter;
  */
 class TransfersController extends Controller
 {
-
+    const TYPE_INCOME = 'income';
+    const TYPE_OUTCOME = 'outcome';
     /**
      * {@inheritdoc}
      */
@@ -43,31 +45,28 @@ class TransfersController extends Controller
     }
 
     /**
-     * Lists all Transaction models.
-     * @return mixed
+     * @param string $type
+     * @return string
      */
-    public function actionIndex($type = Transfer::TYPE_INCOME)
+    public function actionIndex($type = self::TYPE_INCOME)
     {
         $searchModel = new Transfer();
-        $searchModel->type = $type;
+
+        switch ($type) {
+            case self::TYPE_INCOME:
+                $searchModel->receiver = Yii::$app->getUser()->getId();
+                break;
+            case self::TYPE_OUTCOME:
+                $searchModel->sender = Yii::$app->getUser()->getId();
+                break;
+
+        }
         return $this->render('index', [
             'dataProvider' => $searchModel->search(Yii::$app->request->get()),
             'searchModel' => $searchModel,
         ]);
     }
 
-    /**
-     * Displays a single Transaction model.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
 
     /**
      * Creates a new Transaction model.
@@ -76,10 +75,9 @@ class TransfersController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Transfer();
-        $model->setScenario(Transfer::SCENARIO_TRANSFER);
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            return $this->redirect(['index', 'type' => Transfer::TYPE_OUTCOME]);
+        $model = new TransferForm();
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            return $this->redirect(['index', 'type' => self::TYPE_OUTCOME]);
         }
 
         return $this->render('create', [
