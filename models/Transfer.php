@@ -57,7 +57,8 @@ class Transfer extends \yii\db\ActiveRecord
                 'receiver',
                 'compare',
                 'compareAttribute' => 'sender',
-                'operator' => '!='
+                'operator' => '!=',
+                'message' => 'You cannot send amount to yourself'
             ],
             [
                 'amount',
