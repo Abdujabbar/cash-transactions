@@ -43,19 +43,34 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username'], 'required'],
+            [
+                ['username'],
+                'required'
+            ],
             [
                 ['username'],
                 'unique',
                 'targetClass' => 'app\models\User',
                 'message' => 'This username has already been taken.',
                 'on' => self::SCENARIO_INSERT],
-            ['username', 'match', 'pattern' => '/^[a-zA-Z]*$/', 'message' => 'username can contain only characters'],
-
-            [['balance'], 'safe'],
-            [['created_at', 'updated_at'], 'safe'],
-            [['username'], 'string', 'max' => 255, 'min' => 4],
-
+            [
+                'username',
+                'match',
+                'pattern' => '/^[a-zA-Z]*$/',
+                'message' => 'username can contain only characters'],
+            [
+                [
+                    'balance'
+                ],
+                'safe'],
+            [
+                [
+                    'username'
+                ],
+                'string',
+                'max' => 255,
+                'min' => 4
+            ],
         ];
     }
 
