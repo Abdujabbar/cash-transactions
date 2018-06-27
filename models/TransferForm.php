@@ -47,7 +47,7 @@ class TransferForm extends Model
             [
                 'receiver',
                 'string',
-                'min' => 6,
+                'min' => 4,
             ],
             [
                 'receiver',
