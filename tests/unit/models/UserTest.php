@@ -1,6 +1,7 @@
 <?php
 
 namespace tests\models;
+
 use Yii;
 use app\models\User;
 

@@ -187,5 +187,4 @@ class Transfer extends \yii\db\ActiveRecord
         }
         return false;
     }
-
 }

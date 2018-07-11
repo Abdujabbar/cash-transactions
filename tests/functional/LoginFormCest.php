@@ -10,7 +10,6 @@ class LoginFormCest
     public function openLoginPage(\FunctionalTester $I)
     {
         $I->see('Login', 'h1');
-
     }
 
 
@@ -39,6 +38,6 @@ class LoginFormCest
             'LoginForm[username]' => 'admin',
         ]);
         $I->see('Logout (admin)');
-        $I->dontSeeElement('form#login-form');              
+        $I->dontSeeElement('form#login-form');
     }
 }

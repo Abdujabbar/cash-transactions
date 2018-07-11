@@ -8,7 +8,6 @@
 
 namespace tests\models;
 
-
 use app\models\Transfer;
 use app\models\User;
 
@@ -20,7 +19,6 @@ class TransferTest extends \Codeception\Test\Unit
     public function __construct($name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-
     }
 
     public function testSimpleTransfer()
@@ -76,5 +74,4 @@ class TransferTest extends \Codeception\Test\Unit
         $this->assertEquals($transfer->validate(), false);
         $this->arrayHasKey('sender', $transfer->getErrors());
     }
-
 }

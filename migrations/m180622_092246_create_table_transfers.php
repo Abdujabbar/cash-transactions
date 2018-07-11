@@ -21,12 +21,24 @@ class m180622_092246_create_table_transfers extends Migration
             'updated_at' => $this->timestamp(),
         ]);
 
-        $this->addForeignKey('from_user_fk', 'transfers',
-                            'sender', 'users', 'id', 'CASCADE', 'CASCADE');
-        $this->addForeignKey('to_user_fk', 'transfers',
-                            'receiver', 'users', 'id',
-                                    'CASCADE', 'CASCADE');
-
+        $this->addForeignKey(
+            'from_user_fk',
+            'transfers',
+                            'sender',
+            'users',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
+        $this->addForeignKey(
+            'to_user_fk',
+            'transfers',
+                            'receiver',
+            'users',
+            'id',
+                                    'CASCADE',
+            'CASCADE'
+        );
     }
 
     /**

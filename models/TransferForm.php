@@ -8,7 +8,6 @@
 
 namespace app\models;
 
-
 use yii\base\Model;
 
 class TransferForm extends Model
@@ -82,9 +81,8 @@ class TransferForm extends Model
 
     public function afterValidate()
     {
-
         parent::afterValidate();
-        if(!$this->hasErrors()) {
+        if (!$this->hasErrors()) {
             $this->_transfer = new Transfer();
             $this->_transfer->sender = $this->senderUser->getId();
             $this->_transfer->receiver = $this->receiverUser->getId();
@@ -95,8 +93,9 @@ class TransferForm extends Model
         }
     }
 
-    public function save() {
-        if($this->validate()) {
+    public function save()
+    {
+        if ($this->validate()) {
             return $this->_transfer->save();
         }
         return false;
