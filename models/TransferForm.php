@@ -16,6 +16,10 @@ class TransferForm extends Model
     public $receiver;
     public $amount;
     /**
+     * @var $_transfer Transfer
+     */
+    protected $_transfer;
+    /**
      * @var User
      */
     protected $receiverUser;
@@ -81,15 +85,24 @@ class TransferForm extends Model
 
         parent::afterValidate();
         if(!$this->hasErrors()) {
-            $transfer = new Transfer();
-            $transfer->sender = $this->senderUser->getId();
-            $transfer->receiver = $this->receiverUser->getId();
-            $transfer->amount = $this->amount;
-            if (!$transfer->save()) {
-                $this->addErrors($transfer->getErrors());
+            $this->_transfer = new Transfer();
+            $this->_transfer->sender = $this->senderUser->getId();
+            $this->_transfer->receiver = $this->receiverUser->getId();
+            $this->_transfer->amount = $this->amount;
+            if (!$this->_transfer->validate()) {
+                $this->addErrors($this->_transfer->getErrors());
             }
         }
     }
+
+    public function save() {
+        if($this->validate()) {
+            return $this->_transfer->save();
+        }
+        return false;
+    }
+
+
 
     public function receiverExists($attribute, $params, $validator)
     {

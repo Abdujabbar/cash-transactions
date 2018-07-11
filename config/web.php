@@ -46,8 +46,9 @@ $config = [
 
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'showScriptName' => false,
+            'showScriptName' => true,
             'rules' => [
+                'transfers/index/<type:(income|outcome)>' => 'transfers/index'
             ],
         ],
     ],

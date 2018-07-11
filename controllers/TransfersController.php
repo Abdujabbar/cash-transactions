@@ -47,11 +47,11 @@ class TransfersController extends Controller
     /**
      * @param string $type
      * @return string
+     * @throws \HttpException
      */
     public function actionIndex($type = self::TYPE_INCOME)
     {
         $searchModel = new Transfer();
-
         switch ($type) {
             case self::TYPE_INCOME:
                 $searchModel->receiver = Yii::$app->getUser()->getId();
@@ -59,11 +59,14 @@ class TransfersController extends Controller
             case self::TYPE_OUTCOME:
                 $searchModel->sender = Yii::$app->getUser()->getId();
                 break;
-
+            default:
+                throw new \HttpException("Wrong type paremeter");
+                break;
         }
         return $this->render('index', [
             'dataProvider' => $searchModel->search(Yii::$app->request->get()),
             'searchModel' => $searchModel,
+            'type' => $type,
         ]);
     }
 
@@ -76,7 +79,7 @@ class TransfersController extends Controller
     public function actionCreate()
     {
         $model = new TransferForm();
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['index', 'type' => self::TYPE_OUTCOME]);
         }
 

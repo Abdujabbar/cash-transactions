@@ -5,7 +5,6 @@ use yii\grid\GridView;
 use yii\widgets\Pjax;
 /* @var $this yii\web\View */
 /* @var $dataProvider yii\data\ActiveDataProvider */
-$type = Yii::$app->request->get('type');
 $this->title = 'Transfers ' . $type;
 $this->params['breadcrumbs'][] = $this->title;
 ?>
